@@ -110,6 +110,43 @@ class LeftFormNoMessage(unittest.TestCase):
         self.driver.close()
 
 
+# Test Scenario 2 - A user fills out the right form
+class RightFormInvalidCaptcha(unittest.TestCase):
+    """Test Case 4
+    Failing to answer the captcha question
+    results in a message 'You entered the wrong number in captcha.'
+    """
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+
+    def test_search_in_python_org(self):
+        driver = self.driver
+        driver.get("https://www.ultimateqa.com/filling-out-forms/")
+        self.assertIn("Filling Out Forms - Ultimate QA", driver.title)
+
+        name_field = driver.find_element_by_id("et_pb_contact_name_1")
+        message_field = driver.find_element_by_id("et_pb_contact_message_1")
+        captcha_field = driver.find_element_by_class_name("input.et_pb_contact_captcha")
+
+        name_field.send_keys("name")
+        message_field.send_keys("here is my message")
+        captcha_field.send_keys("-10")
+
+        submit_button = driver.find_element_by_css_selector(".et_pb_contact_submit.et_pb_button:nth-child(2)")
+        submit_button.click()
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".et-pb-contact-message") ))
+
+        assert check_exists_by_xpath(driver, "//div[contains(@class, 'et-pb-contact-message') and contains(.//li, 'You entered the wrong number in captcha.')]")
+
+
+        time.sleep(SLEEP_TIME)
+
+    def tearDown(self):
+        self.driver.close()
+
+
 # Helper functions
 def check_exists_by_xpath(driver, xpath):
     try:
